@@ -16,15 +16,15 @@ const page = () => {
   };
 
   return (
-    <div className="px-10 py-8 ">
-      <h1 className="font-bold text-5xl ms-5 italic">Conversations</h1>
+    <div className="px-24 py-8 ">
+      <h1 className="text-4xl md:text-5xl font-bold mb-5 text-foreground">Conversations</h1>
 
-      <div className="mt-10 space-y-4 px-5">
+      <div className="mt-10 space-y-4 px-2">
         {/* List of conversations will go here */}
         <div>
           <div
             onClick={handleOpenConversation}
-            className="border-1 shadow-sm rounded-lg p-5 hover:bg-gray-600 cursor-pointer hover:scale-[100.5%] transition duration-300"
+            className="border-1 shadow-sm rounded-lg p-5 hover:bg-gray-100 cursor-pointer hover:scale-[100.5%] transition duration-300"
           >
             <div className="flex justify-between items-center">
               <div>

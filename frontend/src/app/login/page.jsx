@@ -19,8 +19,6 @@ const LoginPage = () => {
     router.push("/dashboard");
 
   }
-
-
   return (
     <div className="flex justify-center items-center h-screen">
       <div
@@ -28,7 +26,7 @@ const LoginPage = () => {
                         shadow-lg border-gray-200 space-y-5 w-full max-w-xl"
       >
         <div>
-          <p className="font-bold text-3xl text-start">Sign In</p>
+          <p className="font-bold text-3xl text-start">Log in</p>
           <p className="text-sm text-start opacity-50 mt-2">
             Welcome back! Please enter your credentials.
           </p>
@@ -44,8 +42,13 @@ const LoginPage = () => {
             <label className="text-md font-medium mb-2 block">Password</label>
             <Input placeholder="*********" type="password" size="lg" />
           </div>
+
+          <p className="text-sm text-start opacity-50 mt-2">
+            Don't have an account? <a href="/signup" className="text-blue-500">Sign up</a>
+          </p>
+
           <div className="flex justify-center">
-            <Button className="w-full text-md py-6">Login</Button>
+            <Button className="w-full text-md py-6">Log In</Button>
           </div>
 
           <div className="flex justify-center items-center">
