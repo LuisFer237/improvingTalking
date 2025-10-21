@@ -24,8 +24,8 @@ const LoginPage = () => {
   return (
     <div className="flex justify-center items-center h-screen">
       <div
-        className="border-2 py-10 px-16 rounded-lg 
-                        shadow-lg border-gray-100 space-y-5 w-full max-w-xl"
+        className="border-2 py-10 px-16 rounded-lg  bg-gray-100
+                        shadow-lg border-gray-200 space-y-5 w-full max-w-xl"
       >
         <div>
           <p className="font-bold text-3xl text-start">Sign In</p>

@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,13 +14,14 @@ const layout = ({ children }) => {
   return (
     <div>
       <div className="flex justify-between items-center border-1 py-5 px-15 shadow-sm">
-        <div>
-            
+        <div className="font-bold text-xl  flex gap-2 items-center">
+          <Image src="/logo.png" alt="Logo" width={40} height={40} className="rounded-full"/>
+            Improving Talking
         </div>
         <div>
           <DropdownMenu>
             <DropdownMenuTrigger >
-              <div className=" border-1 shadow-sm rounded-full size-10 flex items-center justify-center">
+              <div className=" border-1 border-gray-400 bg-gray-500 shadow-sm rounded-full size-10 flex items-center justify-center">
                 <FaUser size={20} />
               </div>
             </DropdownMenuTrigger>
