@@ -1,3 +1,4 @@
+// auth.js
 import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import { prisma } from "@/lib/prisma"
@@ -41,5 +42,45 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             }
 
         })
-    ]
+    ],
+    callbacks: {
+        authorized({ request, auth }) {
+            const { pathname } = request.nextUrl
+            const isLoggedIn = !!auth // The key check
+            
+            const isProtectedRoute = pathname.startsWith("/dashboard") || pathname.startsWith("/chat")
+            const isAuthRoute = pathname === "/login" || pathname === "/signup"
+            
+            // 🛑 Add this logging line
+            console.log(`[AUTH.JS CHECK] Path: ${pathname}, isLoggedIn: ${isLoggedIn}, Auth Object: ${!!auth ? 'Exists' : 'NULL'}`)
+
+            // 1. Redireccionar usuarios no autenticados a rutas protegidas
+            if (isProtectedRoute && !isLoggedIn) {
+                const loginUrl = new URL("/login", request.nextUrl)
+                loginUrl.searchParams.set("callbackUrl", pathname)
+                return Response.redirect(loginUrl)
+            }
+
+            // 2. Redireccionar usuarios logueados fuera de las rutas de autenticación
+            if (isAuthRoute && isLoggedIn) {
+                return Response.redirect(new URL("/dashboard", request.nextUrl))
+            }
+
+            return true
+        },
+        async jwt({ token, user }) {
+            if (user) {
+                token.id = user.id
+                token.email = user.email
+            }
+            return token
+        },
+        async session({ session, token }) {
+            if (token) {
+                session.user.id = token.id
+                session.user.email = token.email
+            }
+            return session
+        }
+    }
 })

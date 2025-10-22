@@ -1,8 +1,9 @@
-import { Geist, Geist_Mono,Roboto } from "next/font/google";
+import { Geist, Geist_Mono, Roboto } from "next/font/google";
 import "./globals.css";
-import { config } from '@fortawesome/fontawesome-svg-core'
-import '@fortawesome/fontawesome-svg-core/styles.css'
-config.autoAddCss = false
+import { config } from "@fortawesome/fontawesome-svg-core";
+import "@fortawesome/fontawesome-svg-core/styles.css";
+config.autoAddCss = false;
+import { Providers } from "@/components/providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,7 +18,7 @@ const geistMono = Geist_Mono({
 const roboto = Roboto({
   subsets: ["latin"],
   variable: "--font-roboto",
-  weight: ["100","300","400","500","700","900"],
+  weight: ["100", "300", "400", "500", "700", "900"],
   display: "swap",
 });
 
@@ -30,7 +31,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`${roboto.variable}`}>
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

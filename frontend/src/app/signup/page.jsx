@@ -50,6 +50,10 @@ const SignupPage = () => {
         router.push("/login");
         return;
       }
+
+      // Redirect to dashboard or home page after signup and login
+      router.push("/dashboard");
+      
     } catch (error) {
       setError(error.message || "An unexpected error occurred");
     } finally {

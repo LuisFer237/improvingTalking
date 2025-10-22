@@ -1,3 +1,5 @@
+"use client"
+
 import Image from "next/image";
 import {
   DropdownMenu,
@@ -7,9 +9,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User } from "lucide-react";
+import { User, LogOut } from "lucide-react";
+import { signOut, useSession } from "next-auth/react";
 
 export default function ChatLayout({ children }) {
+  const { data: session } = useSession();
+
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: "/login" });
+  };
   return (
     <div className="min-h-screen bg-background">
       <nav className="flex justify-between items-center border-b border-border bg-card px-4 py-3 shadow-sm md:px-6 lg:px-8">
@@ -31,12 +39,26 @@ export default function ChatLayout({ children }) {
             </div>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuLabel>
+            {session?.user?.email && (
+              <div className="text-muted-foreground">
+                {session.user.email}
+              </div> 
+            )}
+            </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>Profile</DropdownMenuItem>
             <DropdownMenuItem>Billing</DropdownMenuItem>
             <DropdownMenuItem>Team</DropdownMenuItem>
             <DropdownMenuItem>Subscription</DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem 
+              onClick={handleLogout}
+              className="text-red-600 focus:text-red-600 cursor-pointer"
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              Log out
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </nav>
