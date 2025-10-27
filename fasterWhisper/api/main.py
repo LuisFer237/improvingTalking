@@ -1,10 +1,16 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, Form
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from services.transcription_service import TranscriptionService
 import shutil 
+from kokoro import KPipeline
+import soundfile as sf
+import os
 
 app = FastAPI()
 transcription_service = TranscriptionService()
+
+pipeline = KPipeline(lang_code='a') 
 
 # Add CORS middleware
 app.add_middleware(
@@ -33,3 +39,12 @@ async def transcribe(file: UploadFile = File(...)):
     
     return result
     
+@app.post("/tts")
+async def tts(text: str = Form(...)):
+    generator = pipeline(text, voice='af_heart')
+    audio_path = "output.wav"
+    for i, (_,_, audio) in enumerate(generator):
+        sf.write(audio_path, audio, 24000)
+        break
+    
+    return FileResponse(audio_path, media_type="audio/wav", filename="output.wav")

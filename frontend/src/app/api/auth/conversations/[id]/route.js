@@ -37,11 +37,20 @@ export async function GET(request, { params }) {
 
 export async function DELETE(request, { params }) {
 
+    // console.log("DELETE request received for conversation ID:", params.id);
+
     try {
 
         const session = await getSession();
 
         const { id: conversationId } = await params;
+
+
+        await prisma.message.deleteMany({
+            where: {
+                conversationId: conversationId,
+            }
+        })
 
         await prisma.conversation.deleteMany({
             where: {
@@ -56,6 +65,8 @@ export async function DELETE(request, { params }) {
         })
 
     } catch (error) {
+
+        // console.error("Error deleting conversation:", error);
 
         return NextResponse.json({ error: "INTERNAL_SERVER_ERROR" }, { status: 500 });
     }

@@ -3,11 +3,19 @@ import { useState, useRef } from "react";
 import { Mic } from "lucide-react";
 import { IoReloadOutline } from "react-icons/io5";
 
-export function AudioButton({ onTranscription }) {
-  const [isRecording, setIsRecording] = useState(false);
+export function AudioButton({
+  onTranscription,
+  isRecording,
+  setIsRecording,
+  uploading,
+  setUploading,
+  assistantAnswering,
+  setAssistantAnswering,
+  assistantPreparingAudio,
+  setAssistantPreparingAudio,
+}) {
   const [audioUrl, setAudioUrl] = useState(null);
   const [audioBlob, setAudioBlob] = useState(null);
-  const [uploading, setUploading] = useState(false);
   const [transcription, setTranscription] = useState("");
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
@@ -94,73 +102,107 @@ export function AudioButton({ onTranscription }) {
 
   return (
     <div className="flex flex-col items-center">
-      <button
-        onClick={handleButtonClick}
-        className={`
-          relative flex items-center justify-center gap-3
-          transition-all duration-500 ease-out
-          ${
-            isRecording
-              ? "w-56 h-16 rounded-full bg-emerald-500 hover:bg-emerald-600"
-              : "w-20 h-20 rounded-full bg-black hover:bg-gray-900"
-          }
-        `}
-        aria-label={isRecording ? "Stop recording" : "Start recording"}
-      >
-        {isRecording && (
-          <div className="flex items-center gap-1 h-8">
-            {[...Array(5)].map((_, i) => (
-              <div
-                key={i}
-                className="w-1 rounded-full bg-white animate-waveform"
-                style={{
-                  animationDelay: `${i * 0.1}s`,
-                }}
-              />
-            ))}
-          </div>
-        )}
-
-        {/* Microphone icon */}
-        <Mic
-          className={`
-            text-white transition-all duration-500
-            ${isRecording ? "w-5 h-5" : "w-6 h-6"}
-          `}
-        />
-
-        {/* Recording text */}
-        {isRecording && (
-          <span className="text-sm font-medium text-white animate-pulse">
-            Recording
+      {assistantAnswering ? (
+        <div
+          className="relative flex items-center justify-center gap-3 w-56 h-16 rounded-full bg-gradient-to-br from-indigo-600 to-purple-700 shadow-xl shadow-indigo-500/50 transition-all duration-500 ease-out"
+        >
+          {/* Ripple effect */}
+          {[...Array(3)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute inset-0 rounded-full border-2 border-indigo-400"
+              style={{
+                animation: `ripple 2s ease-out infinite ${i * 0.6}s`,
+              }}
+            />
+          ))}
+          <Volume2 className="w-10 h-10 text-white animate-pulse z-10" />
+          <span className="text-lg font-medium text-white animate-pulse ml-4 z-10">
+            Speaking...
           </span>
-        )}
-
-        <style jsx>{`
-          @keyframes waveform {
-            0%,
-            100% {
-              height: 8px;
+          <style jsx>{`
+            @keyframes ripple {
+              0% {
+                transform: scale(0.8);
+                opacity: 1;
+              }
+              100% {
+                transform: scale(1.5);
+                opacity: 0;
+              }
             }
-            50% {
-              height: 32px;
-            }
-          }
-          .animate-waveform {
-            animation: waveform 0.8s ease-in-out infinite;
-          }
-        `}</style>
-      </button>
-      {audioUrl && (
-        <>
-          {uploading && (
-            <div className="flex items-center gap-2 mt-5">
-              <IoReloadOutline className="animate-spin" />
-              <span className="text-gray-600">Transcribing...</span>
+          `}</style>
+        </div>
+      ) : (
+        <button
+          onClick={handleButtonClick}
+          className={`
+            relative flex items-center justify-center gap-3
+            transition-all duration-500 ease-out
+            ${isRecording
+              ? "w-56 h-16 rounded-full bg-emerald-500 hover:bg-emerald-600"
+              : "w-20 h-20 rounded-full bg-black hover:bg-gray-900"}
+          `}
+          aria-label={isRecording ? "Stop recording" : "Start recording"}
+        >
+          {isRecording && (
+            <div className="flex items-center gap-1 h-8">
+              {[...Array(5)].map((_, i) => (
+                <div
+                  key={i}
+                  className="w-1 rounded-full bg-white animate-waveform"
+                  style={{
+                    animationDelay: `${i * 0.1}s`,
+                  }}
+                />
+              ))}
             </div>
           )}
-        </>
+          {/* Microphone icon */}
+          <Mic
+            className={`
+              text-white transition-all duration-500
+              ${isRecording ? "w-5 h-5" : "w-6 h-6"}
+            `}
+          />
+          {/* Recording text */}
+          {isRecording && (
+            <span className="text-sm font-medium text-white animate-pulse">
+              Recording
+            </span>
+          )}
+          <style jsx>{`
+            @keyframes waveform {
+              0%,
+              100% {
+                height: 8px;
+              }
+              50% {
+                height: 32px;
+              }
+            }
+            .animate-waveform {
+              animation: waveform 0.8s ease-in-out infinite;
+            }
+          `}</style>
+        </button>
       )}
+      {/* Unified status message area */}
+      <div style={{ minHeight: "32px" }} className="flex items-center gap-2 mt-5">
+        {isRecording && <span className="text-gray-600">Recording...</span>}
+        {uploading && (
+          <>
+            <IoReloadOutline className="animate-spin" />
+            <span className="text-gray-600">Transcribing...</span>
+          </>
+        )}
+        {assistantPreparingAudio && (
+          <>
+            <IoReloadOutline className="animate-spin" />
+            <span className="text-gray-600">Preparing assistant response...</span>
+          </>
+        )}
+      </div>
     </div>
   );
 }
