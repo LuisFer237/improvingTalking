@@ -19,6 +19,7 @@ export function AudioButton({
   const [transcription, setTranscription] = useState("");
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
+  const fastApiUrl = process.env.NEXT_PUBLIC_FAST_API_URL;
 
   const getSupportedMimeType = () => {
     const possibleTypes = ["audio/webm", "audio/mp4", "audio/wav"];
@@ -83,7 +84,7 @@ export function AudioButton({
     formData.append("file", blob, "recording.webm");
 
     try {
-      const res = await fetch("http://localhost:8000/transcribe", {
+      const res = await fetch(`${fastApiUrl}/transcribe`, {
         method: "POST",
         body: formData,
       });

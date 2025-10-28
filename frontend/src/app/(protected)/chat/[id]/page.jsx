@@ -21,6 +21,8 @@ const Page = () => {
   const messagesEndRef = useRef(null);
   const [isRecording, setIsRecording] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const lmStudioServerUrl = process.env.LM_STUDIO_SERVER_URL;
+  const fastApiServerUrl = process.env.FAST_API_URL;
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -58,7 +60,7 @@ const Page = () => {
     const startConversation = async () => {
       try {
         const res = await fetch(
-          "http://192.168.1.69:1234/v1/chat/completions",
+          `${lmStudioServerUrl}/v1/chat/completions`,
           {
             method: "POST",
             headers: {
@@ -126,7 +128,7 @@ const Page = () => {
   const playAssistantAudio = async (text) => {
     try {
       setAssistantPreparingAudio(true);
-      const response = await fetch("http://127.0.0.1:8000/tts", {
+      const response = await fetch(`${fastApiServerUrl}/tts`, {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -193,7 +195,7 @@ const Page = () => {
       // Don't set assistantAnswering here, let playAssistantAudio handle it
 
       const aiRes = await fetch(
-        "http://192.168.1.69:1234/v1/chat/completions",
+        `${lmStudioServerUrl}/v1/chat/completions`,
         {
           method: "POST",
           headers: {
@@ -240,39 +242,45 @@ const Page = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-10 py-8 h-screen flex flex-col">
-        <div className="flex justify-between items-center">
-          <h1 className="font-bold text-4xl mb-6 text-foreground">
+      <div className="container mx-auto px-4 sm:px-6 md:px-8 lg:px-10 py-4 sm:py-6 md:py-8 h-screen flex flex-col">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
+          <h1 className="font-bold text-2xl sm:text-3xl lg:text-4xl text-foreground">
             {conversation.title}
           </h1>
-          <Button variant="outline" onClick={returnDashboard}>
-            <IoIosReturnLeft />
-            Go Back to Dashboard
+          <Button
+            variant="outline"
+            onClick={returnDashboard}
+            className="self-start sm:self-auto bg-transparent"
+          >
+            <IoIosReturnLeft className="sm:mr-2" />
+            <span className="hidden sm:inline">Go Back to Dashboard</span>
+            <span className="sm:hidden">Back</span>
           </Button>
         </div>
 
         {error && (
-          <div className="bg-red-100 text-red-800 p-4 rounded mb-4">
+          <div className="bg-destructive/10 text-destructive border border-destructive/20 p-3 sm:p-4 rounded-lg mb-4 text-sm">
             {error}
           </div>
         )}
 
-        {/* Main Flex Layout - responsive grid on mobile, flex on desktop */}
-        <div className="flex flex-col lg:flex-row flex-1 gap-6 overflow-hidden">
+        <div className="flex flex-col lg:flex-row flex-1 gap-4 sm:gap-6 overflow-hidden min-h-0">
           {/* Left: Chatting Space */}
-          <div className="flex-1 lg:flex-[5] flex flex-col border shadow-lg rounded-lg p-4">
-            <div className="px-6 py-4">
-              <h2 className="text-2xl font-semibold">Chatting Space</h2>
-              <p className="text-sm text-muted-foreground mt-1.5">
+          <div className="flex-1 lg:flex-[3] flex flex-col border border-border shadow-lg rounded-lg overflow-hidden">
+            <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-border">
+              <h2 className="text-xl sm:text-2xl font-semibold text-foreground">
+                Chatting Space
+              </h2>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1 sm:mt-1.5">
                 Click the button to start chatting with voice
               </p>
             </div>
-            <div className="flex-1 flex flex-col px-6 pb-6">
-              <div className="flex justify-center items-center flex-1 bg-muted/100 rounded-lg border-2 border-dashed border-border">
+            <div className="flex-1 flex flex-col p-4 sm:p-6 min-h-0">
+              <div className="flex justify-center items-center flex-1 bg-muted/50 rounded-lg border-2 border-dashed border-border min-h-[200px] sm:min-h-[300px]">
                 <div className="flex flex-col items-center justify-center flex-1">
                   {/* Button or speaking animation */}
                   {assistantAnswering ? (
-                    <div className="relative flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-indigo-600 to-purple-700 shadow-xl shadow-indigo-500/50">
+                    <div className="relative flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-indigo-600 to-purple-700 shadow-xl shadow-indigo-500/50">
                       {[...Array(3)].map((_, i) => (
                         <div
                           key={i}
@@ -284,7 +292,7 @@ const Page = () => {
                           }}
                         />
                       ))}
-                      <Volume2 className="w-8 h-8 text-white animate-pulse z-10" />
+                      <Volume2 className="w-6 h-6 sm:w-8 sm:h-8 text-white animate-pulse z-10" />
                       <style jsx>{`
                         @keyframes ripple {
                           0% {
@@ -317,21 +325,23 @@ const Page = () => {
           </div>
 
           {/* Right: Conversation History */}
-          <div className="flex-1 lg:flex-[4] flex flex-col border shadow-lg rounded-lg p-4">
-            <div className="px-6 py-4">
-              <h2 className="text-2xl font-semibold">Conversation History</h2>
-              <p className="text-sm text-muted-foreground mt-1.5">
+          <div className="flex-1 lg:flex-[2] flex flex-col border border-border shadow-lg rounded-lg overflow-hidden">
+            <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-border">
+              <h2 className="text-xl sm:text-2xl font-semibold text-foreground">
+                Conversation History
+              </h2>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1 sm:mt-1.5">
                 See what you talked about
               </p>
             </div>
-            <div className="flex-1 flex flex-col min-h-0 px-6 pb-6">
-              <div className="flex-1 rounded-lg border bg-muted/100 p-4 overflow-y-auto">
+            <div className="flex-1 flex flex-col min-h-0 p-4 sm:p-6">
+              <div className="flex-1 rounded-lg border border-border bg-muted/50 p-3 sm:p-4 overflow-y-auto">
                 {messages.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-full text-center py-12">
-                    <div className="rounded-full bg-muted p-4 mb-4">
-                      <Mic className="h-8 w-8 text-muted-foreground" />
+                  <div className="flex flex-col items-center justify-center h-full text-center py-8 sm:py-12">
+                    <div className="rounded-full bg-muted p-3 sm:p-4 mb-3 sm:mb-4">
+                      <Mic className="h-6 w-6 sm:h-8 sm:w-8 text-muted-foreground" />
                     </div>
-                    <p className="text-muted-foreground text-sm">
+                    <p className="text-muted-foreground text-xs sm:text-sm">
                       No conversations yet
                     </p>
                     <p className="text-muted-foreground text-xs mt-1">
@@ -339,17 +349,19 @@ const Page = () => {
                     </p>
                   </div>
                 ) : (
-                  <ul className="space-y-2">
+                  <ul className="space-y-2 sm:space-y-3">
                     {messages.map((msg) => (
                       <li
                         key={msg.id}
-                        className="bg-white rounded shadow p-3 text-left"
+                        className="bg-card border border-border rounded-lg shadow-sm p-2.5 sm:p-3 text-left"
                       >
-                        <span className="font-semibold">
+                        <span className="font-semibold text-foreground text-sm sm:text-base">
                           {msg.sender || "User"}:
                         </span>
-                        <span className="ml-2">{msg.content}</span>
-                        <div className="text-xs text-gray-400 mt-1">
+                        <span className="ml-2 text-foreground text-sm sm:text-base">
+                          {msg.content}
+                        </span>
+                        <div className="text-xs text-muted-foreground mt-1">
                           {new Date(msg.createdAt).toLocaleString()}
                         </div>
                       </li>
