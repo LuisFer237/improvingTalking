@@ -21,8 +21,8 @@ const Page = () => {
   const messagesEndRef = useRef(null);
   const [isRecording, setIsRecording] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const lmStudioServerUrl = process.env.LM_STUDIO_SERVER_URL;
-  const fastApiServerUrl = process.env.FAST_API_URL;
+  const lmStudioServerUrl = process.env.NEXT_PUBLIC_LM_STUDIO_SERVER_URL;
+  const fastApiServerUrl = process.env.NEXT_PUBLIC_FAST_API_URL;
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -90,6 +90,7 @@ const Page = () => {
         );
 
         if (!res.ok) {
+          console.error("LM Studio response not ok:", res.statusText);
           throw new Error("Failed to start conversation");
         }
 
@@ -132,6 +133,7 @@ const Page = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
+          'bypass-tunnel-reminder': '1',
         },
         body: new URLSearchParams({ text }),
       });
@@ -200,6 +202,7 @@ const Page = () => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            'bypass-tunnel-reminder': '1',
           },
           body: JSON.stringify({
             messages: formattedMessages,

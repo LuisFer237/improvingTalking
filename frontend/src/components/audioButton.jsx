@@ -85,6 +85,9 @@ export function AudioButton({
 
     try {
       const res = await fetch(`${fastApiUrl}/transcribe`, {
+        headers:{
+          'bypass-tunnel-reminder': '1'
+        },
         method: "POST",
         body: formData,
       });
