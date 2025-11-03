@@ -33,7 +33,7 @@ export async function GET(request) {
             },
         });
 
-        console.log("Retrieved messages:", messages);
+        // console.log("Retrieved messages:", messages);
 
         return NextResponse.json({ messages: messages }, { status: 200 });
     } catch (error) {

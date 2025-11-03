@@ -8,6 +8,7 @@ import { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { IoIosReturnLeft } from "react-icons/io";
 import { IoReloadOutline } from "react-icons/io5";
+import Feedback from "@/components/feedback";
 
 const Page = () => {
   const router = useRouter();
@@ -21,12 +22,19 @@ const Page = () => {
   const messagesEndRef = useRef(null);
   const [isRecording, setIsRecording] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [conversationStarted, setConversationStarted] = useState(false);
   const lmStudioServerUrl = process.env.NEXT_PUBLIC_LM_STUDIO_SERVER_URL;
   const fastApiServerUrl = process.env.NEXT_PUBLIC_FAST_API_URL;
+  const messagesForFeedback = messages.filter(
+    (msg) => msg.sender === "user" && msg.conversationId === id
+  );
 
   useEffect(() => {
     if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+      messagesEndRef.current.scrollTo({
+        top: messagesEndRef.current.scrollHeight,
+        behavior: "smooth",
+      });
     }
   }, [messages]);
 
@@ -53,24 +61,18 @@ const Page = () => {
     fetchMessages();
   }, [id]);
 
-  useEffect(() => {
-    if (loading) return;
-    if (messages.length !== 0) return;
-
-    const startConversation = async () => {
-      try {
-        const res = await fetch(
-          `${lmStudioServerUrl}/v1/chat/completions`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              messages: [
-                {
-                  role: "user",
-                  content: `You are a friendly English conversation partner.
+  const startConversation = async () => {
+    try {
+      const res = await fetch(`${lmStudioServerUrl}/v1/chat/completions`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          messages: [
+            {
+              role: "user",
+              content: `You are a friendly English conversation partner.
                     Your goal is to have natural, fluent conversations with the user to help them practice speaking.
 
                     Guidelines:
@@ -83,48 +85,45 @@ const Page = () => {
                     - End the conversation politely when the user says goodbye.
 
                     Now start the conversation with a friendly greeting and an open question.`,
-                },
-              ],
-            }),
-          }
-        );
+            },
+          ],
+        }),
+      });
 
-        if (!res.ok) {
-          console.error("LM Studio response not ok:", res.statusText);
-          throw new Error("Failed to start conversation");
-        }
-
-        const data = await res.json();
-        const aiMessage = data.choices?.[0]?.message?.content || "No response";
-
-        const saveMessage = await fetch("/api/auth/messages", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            conversationId: id,
-            content: aiMessage,
-            sender: "assistant",
-          }),
-        });
-
-        if (!saveMessage.ok) {
-          throw new Error("Failed to save assistant message");
-        }
-
-        const savedData = await saveMessage.json();
-
-        playAssistantAudio(aiMessage);
-
-        setMessages((prev) => [...prev, savedData.message]);
-      } catch (error) {
-        setError("Error starting conversation: " + error.message);
+      if (!res.ok) {
+        console.error("LM Studio response not ok:", res.statusText);
+        throw new Error("Failed to start conversation");
       }
-    };
 
-    startConversation();
-  }, [loading, messages.length, id]);
+      const data = await res.json();
+      const aiMessage = data.choices?.[0]?.message?.content || "No response";
+
+      const saveMessage = await fetch("/api/auth/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          conversationId: id,
+          content: aiMessage,
+          sender: "assistant",
+        }),
+      });
+
+      if (!saveMessage.ok) {
+        throw new Error("Failed to save assistant message");
+      }
+
+      const savedData = await saveMessage.json();
+
+      playAssistantAudio(aiMessage);
+
+      setMessages((prev) => [...prev, savedData.message]);
+      setConversationStarted(true);
+    } catch (error) {
+      setError("Error starting conversation: " + error.message);
+    }
+  };
 
   const playAssistantAudio = async (text) => {
     try {
@@ -133,7 +132,7 @@ const Page = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
-          'bypass-tunnel-reminder': '1',
+          "bypass-tunnel-reminder": "1",
         },
         body: new URLSearchParams({ text }),
       });
@@ -196,19 +195,16 @@ const Page = () => {
 
       // Don't set assistantAnswering here, let playAssistantAudio handle it
 
-      const aiRes = await fetch(
-        `${lmStudioServerUrl}/v1/chat/completions`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            'bypass-tunnel-reminder': '1',
-          },
-          body: JSON.stringify({
-            messages: formattedMessages,
-          }),
-        }
-      );
+      const aiRes = await fetch(`${lmStudioServerUrl}/v1/chat/completions`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "bypass-tunnel-reminder": "1",
+        },
+        body: JSON.stringify({
+          messages: formattedMessages,
+        }),
+      });
 
       if (!aiRes.ok) throw new Error("Failed to get AI response");
       const data = await aiRes.json();
@@ -239,13 +235,19 @@ const Page = () => {
     }
   };
 
+  const fetchMessages = async () => {
+    const res = await fetch(`/api/auth/messages?conversationId=${id}`);
+    const data = await res.json();
+    setMessages(data.messages || []);
+  };
+
   const returnDashboard = () => {
     router.push("/dashboard");
   };
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 sm:px-6 md:px-8 lg:px-10 py-4 sm:py-6 md:py-8 h-screen flex flex-col">
+      <div className="container mx-auto px-4 sm:px-6 md:px-8 lg:px-10 pt-4 sm:py-6 md:py-8 h-screen flex flex-col">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
           <h1 className="font-bold text-2xl sm:text-3xl lg:text-4xl text-foreground">
             {conversation.title}
@@ -281,8 +283,11 @@ const Page = () => {
             <div className="flex-1 flex flex-col p-4 sm:p-6 min-h-0">
               <div className="flex justify-center items-center flex-1 bg-muted/50 rounded-lg border-2 border-dashed border-border min-h-[200px] sm:min-h-[300px]">
                 <div className="flex flex-col items-center justify-center flex-1">
-                  {/* Button or speaking animation */}
-                  {assistantAnswering ? (
+                  {!conversationStarted ? (
+                    <Button onClick={startConversation} className="mb-4">
+                      Start Conversation
+                    </Button>
+                  ) : assistantAnswering ? (
                     <div className="relative flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-indigo-600 to-purple-700 shadow-xl shadow-indigo-500/50">
                       {[...Array(3)].map((_, i) => (
                         <div
@@ -338,7 +343,10 @@ const Page = () => {
               </p>
             </div>
             <div className="flex-1 flex flex-col min-h-0 p-4 sm:p-6">
-              <div className="flex-1 rounded-lg border border-border bg-muted/50 p-3 sm:p-4 overflow-y-auto">
+              <div
+                className="flex-1 rounded-lg border border-border bg-muted/50 p-3 sm:p-4 overflow-y-auto"
+                ref={messagesEndRef}
+              >
                 {messages.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-full text-center py-8 sm:py-12">
                     <div className="rounded-full bg-muted p-3 sm:p-4 mb-3 sm:mb-4">
@@ -369,13 +377,20 @@ const Page = () => {
                         </div>
                       </li>
                     ))}
-                    <div ref={messagesEndRef} />
                   </ul>
                 )}
               </div>
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="container mx-auto px-4 sm:px-6 md:px-8 lg:px-10 mb-10 flex flex-col">
+        <Feedback
+          messages={messagesForFeedback}
+          conversation={conversation}
+          refetchMessages={fetchMessages}
+        />
       </div>
     </div>
   );

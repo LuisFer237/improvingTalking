@@ -62,54 +62,54 @@ const SignupPage = () => {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen">
+    <div className="flex justify-center items-center min-h-screen p-4">
       <div
-        className="border-2 py-10 px-16 rounded-lg  bg-gray-100
-                        shadow-lg border-gray-200 space-y-5 w-full max-w-xl"
+        className="border-2 py-6 px-4 sm:py-8 sm:px-8 md:py-10 md:px-12 lg:px-16 rounded-lg bg-card
+                    shadow-lg border-border space-y-5 w-full max-w-xl"
       >
         <div>
-          <p className="font-bold text-3xl text-start">Sign up</p>
-          <p className="text-sm text-start opacity-50 mt-2">
+          <p className="font-bold text-2xl sm:text-3xl text-start text-foreground">Sign up</p>
+          <p className="text-sm text-start text-muted-foreground mt-2">
             Welcome! Please enter your information.
           </p>
         </div>
-
-        {/* Login Form */}
+  
+        {/* Signup Form */}
         <form onSubmit={handleSignup} className="space-y-6 w-full">
           <div>
-            <label className="text-md font-medium mb-2 block">Email</label>
+            <label className="text-sm sm:text-md font-medium mb-2 block text-foreground">Email</label>
             <Input
               placeholder="example@example.com"
-              size="lg"
+              type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              type="email"
             />
           </div>
           <div>
-            <label className="text-md font-medium mb-2 block">Password</label>
+            <label className="text-sm sm:text-md font-medium mb-2 block text-foreground">Password</label>
             <Input
               placeholder="*********"
               type="password"
-              size="lg"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
-
-          <p className="text-sm text-start opacity-50 mt-2">
+  
+          <p className="text-sm text-start text-muted-foreground mt-2">
             Do you have an account?{" "}
-            <a href="/login" className="text-blue-500">
+            <a href="/login" className="text-primary hover:underline">
               Log in
             </a>
           </p>
-
+  
           <div className="flex justify-center">
-            <Button className="w-full text-md py-6">Sign up</Button>
+            <Button className="w-full text-sm sm:text-md py-5 sm:py-6" type="submit" disabled={loading}>
+              {loading ? "Signing up..." : "Sign up"}
+            </Button>
           </div>
-
+  
           {error && (
             <Alert variant="destructive">
               <AlertCircleIcon className="h-4 w-4" />
@@ -117,22 +117,20 @@ const SignupPage = () => {
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
-
-          <div className="flex justify-center items-center">
-            <div className="w-full border-gray-400 border-t  rounded-2xl"></div>
-            <p className="mx-4 w-auto text-sm whitespace-nowrap opacity-50">
-              Or continue with
-            </p>
-            <div className="w-full border-gray-400 border-t  rounded-2xl"></div>
+  
+          <div className="flex justify-center items-center gap-2 sm:gap-4">
+            <div className="w-full border-border border-t rounded-2xl"></div>
+            <p className="text-xs sm:text-sm whitespace-nowrap text-muted-foreground">Or continue with</p>
+            <div className="w-full border-border border-t rounded-2xl"></div>
           </div>
-
+  
           {/* Social Login Buttons */}
           <div className="flex justify-around items-center">
             <Button
               variant="outline"
               size="lg"
-              className="w-full"
-              aria-label="Submit"
+              className="w-full text-sm sm:text-base bg-transparent"
+              aria-label="Sign up with Google"
             >
               <FaGoogle /> Google
             </Button>
