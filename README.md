@@ -7,7 +7,9 @@ A full-stack English conversation practice app powered by Next.js, FastAPI, and 
 ## Screenshots
 
 <!-- Add screenshots or GIFs here -->
-![App Screenshot](images/app-screenshot.png)
+![App Screenshot](https://drive.google.com/uc?export=view&id=1AmXjP1goKo7E04L_lx_S_hrMRKmYvJ2D)
+![Chat Interface](https://drive.google.com/uc?export=view&id=1Ljk1b0Swff35rKucZ8akyvv31Nw-SM60)
+![Feedback Space](https://drive.google.com/uc?export=view&id=1gMpo9tVCCb4hncbZV2WAJUPIefCiHUTz)
 
 ---
 
@@ -67,10 +69,3 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - [Next.js Documentation](https://nextjs.org/docs)
 - [LM Studio Documentation](https://lmstudio.ai/docs)
 
----
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme).
-
----
